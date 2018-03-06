@@ -6,7 +6,7 @@ import time
 
 base = "https://cs.illinois.edu"
 directory = "htmls"
-text_max_dist = 10
+timeout = 2
 
 def extract_soup(link):
     display = Display(visible=0, size=(800, 600))
@@ -37,11 +37,8 @@ def extract_links(soup):
     return links
 
 def get_surr_text(tag):
-    curr = tag.parent
-    dist = 0
     text = []
-
-    text_tags = {"h1", "h2", "h3", "h4", "h5", "p", "span"}
+    curr = tag.parent
 
     while len(curr.text.strip()) == 0:
         if curr.parent:
@@ -58,7 +55,7 @@ def crawl(start_link, depth, visited):
         return
 
     print "sleeping"
-    time.sleep(2)
+    time.sleep(timeout)
     print "awake"
     visited.add(start_link)
     print start_link
@@ -66,11 +63,13 @@ def crawl(start_link, depth, visited):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-
     soup = extract_soup(start_link)
     if not soup:
         return
     links = extract_links(soup)
+
+    for img in soup.find_all("img"):
+        print get_surr_text(img)
 
     new_filename = "{0}/{1}".format(directory, start_link.replace("/", "*"))
     if not os.path.exists(new_filename):
@@ -83,9 +82,4 @@ def crawl(start_link, depth, visited):
                 crawl(link, depth-1, visited)
 
 if __name__ == "__main__":
-    # crawl(base, 2, set())
-
-    soup = extract_soup(base)
-
-    for img in soup.find_all("img"):
-        print get_surr_text(img)
+    crawl(base, 2, set())
