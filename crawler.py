@@ -8,6 +8,12 @@ base = "https://cs.illinois.edu"
 directory = "htmls"
 timeout = 2
 
+def is_link(url):
+    if url.find("http") == 0 or url[0] == "/":
+        return True
+    else:
+        return False
+
 def extract_soup(link):
     display = Display(visible=0, size=(800, 600))
     display.start()
@@ -31,9 +37,10 @@ def extract_links(soup):
     links = []
     for a in soup.find_all("a", href=True):
         link = a['href']
-        if link[0] == "/":
-            link = base + link
-        links.append(link)
+        if is_link(link):
+            if link[0] == "/":
+                link = base + link
+            links.append(link)
     return links
 
 def get_surr_text(tag):
